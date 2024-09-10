@@ -1,0 +1,121 @@
+CREATE TABLE PRODUCTS (
+Product_id INT PRIMARY KEY,
+Product_name varchar(20) NOT NULL,
+Product_type varchar(20) NOT NULL,
+Price decimal(10, 2) NOT NULL,
+);
+
+create table CUSTOMERS (
+Customer_id INT PRIMARY KEY,
+Customer_name varchar(20) NOT NULL,
+Email varchar(50) NOT NULL,
+Phone varchar(20) NOT NULL,
+);
+
+create table ORDERS (
+Order_id INT PRIMARY KEY,
+Customer_id INT,
+Order_date varchar(20) NOT NULL,
+CONSTRAINT Customer_fk FOREIGN KEY (Customer_id) REFERENCES CUSTOMERS(Customer_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE
+);
+
+create table ORDER_DETAILS (
+Order_detail_id INT PRIMARY KEY,
+Order_id INT,
+Product_id INT,
+Quantity varchar(10) NOT NULL,
+CONSTRAINT Order_fk FOREIGN KEY (Order_id) REFERENCES ORDERS(Order_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE,
+CONSTRAINT Product_fk FOREIGN KEY (Product_id) REFERENCES PRODUCTS(Product_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE
+);
+
+create table Product_type (
+Product_type_id INT PRIMARY KEY,
+Product_type_name varchar (20) NOT NULL
+);
+
+
+
+insert into PRODUCTS values ( 1, 'Widget A', 'Widget', 10.00);
+insert into PRODUCTS values (2, 'Widget B','Widget',15.00);
+insert into PRODUCTS values (3, 'Gadget X','Gadget',20.00);
+insert into PRODUCTS values (4,'Gadget Y','Gadget',25.00);
+insert into PRODUCTS values (5, 'Doohickey Z','Doohickey',30.00);
+
+insert into CUSTOMERS values (1,'John Smith','john@example.com',123-456-7890);
+insert into CUSTOMERS values (2, 'Jane Doe', 'jane.doe@example.com',987-654-3210);
+insert into CUSTOMERS values (3,'Alice Brown','alice.brown@example.com',456-789-0123);
+
+insert into ORDERS values (101, 1, 2024-05-01);
+insert into ORDERS values (102, 2, 2024-05-02);
+insert into ORDERS values (103, 3, 2024-05-01);
+
+insert into ORDER_DETAILS values (1, 101, 1, 2);
+insert into ORDER_DETAILS values (2, 101, 3, 1);
+insert into ORDER_DETAILS values (3, 102, 2, 3);
+insert into ORDER_DETAILS values (4, 102, 4, 2);
+insert into ORDER_DETAILS values (5, 103, 5, 1);
+
+insert into PRODUCT_TYPES values (1, 'Widget');
+insert into PRODUCT_TYPES values (2, 'Gadget');
+insert into PRODUCT_TYPES values (3, 'Doohickey');
+
+
+select * from PRODUCTS
+select * from CUSTOMERS 
+select * from ORDERS
+select * from ORDER_DETAILS
+select * from PRODUCT_TYPES
+
+select Product_name, (Price * Quantity) AS TOTAL_QUANTITY
+FROM PRODUCTS
+INNER JOIN ORDER_DETAILS
+ON PRODUCTS.Product_id = ORDER_DETAILS. Product_id
+
+
+SELECT Customer_name,
+COUNT(Order_id) AS total_orders
+FROM CUSTOMERS
+JOIN ORDERS 
+ON CUSTOMERS.Customer_id = ORDERS.Customer_id
+GROUP BY Customer_name
+HAVING COUNT(DISTINCT (ORDERS.Order_date)) = 7;
+
+SELECT Product_name, MAX(Price * Quantity) AS total_quantity
+FROM PRODUCTS
+INNER JOIN ORDER_DETAILS
+ON 	ORDER_DETAILS.Product_id = PRODUCTS.Product_id
+GROUP BY Product_name
+ORDER BY total_quantity DESC
+
+	
+SELECT Customer_name, Product_name
+FROM CUSTOMERS
+INNER JOIN ORDERS
+ON ORDERS.Customer_id = CUSTOMERS.Customer_id
+INNER JOIN PRODUCTS
+ON PRODUCTS.Product_id = CUSTOMERS.Customer_id
+WHERE Product_name IN ('Widget A', 'Widget B')
+
+select Customer_name, (Quantity * Price) AS total_cost
+	from CUSTOMERS
+	INNER JOIN ORDER_DETAILS
+	ON ORDER_DETAILS.Order_detail_id = CUSTOMERS.Customer_id
+	INNER JOIN PRODUCTS
+	ON PRODUCTS.Product_id = CUSTOMERS.Customer_id
+	where Product_type = 'Gadget'
+
+select Customer_name,  (Quantity * Price) AS total_cost_of_Doohickey
+	from CUSTOMERS
+	INNER JOIN ORDERS
+	ON ORDERS.Customer_id = CUSTOMERS.Customer_id
+	INNER JOIN ORDER_DETAILS
+	ON ORDER_DETAILS.Order_id = ORDERS.Order_id
+	INNER JOIN PRODUCTS
+	ON PRODUCTS.Product_id = ORDER_DETAILS.Product_id
+
